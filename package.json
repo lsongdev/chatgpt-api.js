@@ -1,0 +1,27 @@
+{
+  "name": "@song940/chatgpt-api",
+  "version": "0.0.0",
+  "type": "module",
+  "description": "ChatGPT API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/song940/chatgpt-api.js.git"
+  },
+  "keywords": ["chatgpt"],
+  "author": "Lsong <song940@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/song940/chatgpt-api.js/issues"
+  },
+  "homepage": "https://github.com/song940/chatgpt-api.js#readme",
+  "dependencies": {
+    "esbuild": "^0.15.18",
+    "eventsource-parser": "^0.0.5",
+    "expiry-map": "^2.0.0",
+    "uuid": "^9.0.0"
+  }
+}
