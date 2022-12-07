@@ -1,6 +1,6 @@
 {
   "name": "@song940/chatgpt-api",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "type": "module",
   "description": "ChatGPT API",
   "main": "index.js",
@@ -11,17 +11,19 @@
     "type": "git",
     "url": "git+https://github.com/song940/chatgpt-api.js.git"
   },
-  "keywords": ["chatgpt"],
+  "keywords": [
+    "chatgpt"
+  ],
   "author": "Lsong <song940@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/song940/chatgpt-api.js/issues"
   },
   "homepage": "https://github.com/song940/chatgpt-api.js#readme",
   "dependencies": {
-    "esbuild": "^0.15.18",
     "eventsource-parser": "^0.0.5",
     "expiry-map": "^2.0.0",
+    "log-update": "^5.0.1",
     "uuid": "^9.0.0"
   }
 }
