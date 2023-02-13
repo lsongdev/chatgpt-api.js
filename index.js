@@ -5,54 +5,62 @@ import { fetchSSE } from "./fetch-sse.js";
 const cache = new ExpiryMap(10 * 1000)
 const KEY_ACCESS_TOKEN = "accessToken";
 const USER_AGENT =
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36'
 
 export class ChatGPT {
   constructor({ sessionToken }) {
     this.sessionToken = sessionToken;
   }
   async getAccessToken() {
+    const { sessionToken } = this;
     if (cache.get(KEY_ACCESS_TOKEN)) {
       return cache.get(KEY_ACCESS_TOKEN);
     }
-    const { sessionToken } = this;
-    const resp = await fetch("https://chat.openai.com/api/auth/session", {
+    const res = await fetch("https://chat.openai.com/api/auth/session", {
+      method: "GET",
       headers: {
         'user-agent': USER_AGENT,
-        cookie: `__Secure-next-auth.session-token=${sessionToken}`,
-      }
-    })
-    const data = await resp.json();
+        "accept": "text/html, application/json;",
+        "cookie": `__Secure-next-auth.session-token=${sessionToken}; cf_clearance=HdcxmHGoEIEWnQg.lB5HQklrP6CBhuS1B3o5dpY8vJc-1676262884-0-1-d7ed7625.50ddf63a.d0837c6d-160;`
+      },
+    });
+    if (res.status !== 200) {
+      console.log(res.status, res.statusText);
+    }
+    const data = await res.json();
     if (!data.accessToken) {
-      console.log(data);
       throw new Error("UNAUTHORIZED");
     }
     cache.set(KEY_ACCESS_TOKEN, data.accessToken);
     return data.accessToken;
   }
   async send(content, callback) {
+    const { sessionToken } = this;
     const accessToken = await this.getAccessToken();
+    const message = {
+      id: uuidv4(),
+      role: "user",
+      content: {
+        content_type: "text",
+        parts: [content],
+      },
+    };
     const payload = {
       action: "next",
-      messages: [
-        {
-          id: uuidv4(),
-          role: "user",
-          content: {
-            content_type: "text",
-            parts: [content],
-          },
-        },
-      ],
+      messages: [message],
       model: "text-davinci-002-render",
       parent_message_id: uuidv4(),
     };
     fetchSSE("https://chat.openai.com/backend-api/conversation", {
       method: "POST",
       headers: {
-        'user-agent': USER_AGENT,
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
+        "accept": "text/event-stream",
+        "accept-language": "en,zh-CN;q=0.9,zh;q=0.8",
+        "authorization": `Bearer ${accessToken}`,
+        "content-type": "application/json",
+        "x-openai-assistant-app-id": "",
+        "Referer": "https://chat.openai.com/chat",
+        "cookie": `__Secure-next-auth.session-token=${sessionToken}; cf_clearance=HdcxmHGoEIEWnQg.lB5HQklrP6CBhuS1B3o5dpY8vJc-1676262884-0-1-d7ed7625.50ddf63a.d0837c6d-160;`
       },
       body: JSON.stringify(payload),
       onMessage: callback,
@@ -68,7 +76,7 @@ export class ChatGPT {
           if (data.error) {
             reject(data.error);
           } else {
-            // console.log(data);
+            console.log(data);
             resolve(data.message);
           }
         } else {

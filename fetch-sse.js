@@ -17,13 +17,14 @@ export async function* streamAsyncIterable(stream) {
 
 export async function fetchSSE(resource, options) {
   const { onMessage, ...fetchOptions } = options;
-  const resp = await fetch(resource, fetchOptions);
+  const res = await fetch(resource, fetchOptions);
+  console.log(res.status, res.statusText);
   const parser = createParser(event => {
     if (event.type === "event") {
       onMessage(event.data);
     }
   });
-  for await (const chunk of streamAsyncIterable(resp.body)) {
+  for await (const chunk of streamAsyncIterable(res.body)) {
     const str = new TextDecoder().decode(chunk);
     parser.feed(str);
   }
